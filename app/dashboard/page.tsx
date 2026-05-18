@@ -2,6 +2,7 @@ import Link from 'next/link'
 import QuitTracker from '../../components/QuitTracker'
 import CravingCounter from '../../components/CravingCounter'
 import StatsView from '../../components/StatsView'
+import SignOutButton from '../../components/SignOutButton'
 
 const dailyTips = [
   'Drink a glass of water when a craving hits — hydration helps reset the urge.',
@@ -35,6 +36,7 @@ export default function DashboardPage() {
               <Link href="/login" className="inline-flex items-center justify-center rounded-full bg-violet-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-400">
                 Login / Signup
               </Link>
+              <SignOutButton />
               <Link href="/" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:border-violet-400">
                 Home
               </Link>
