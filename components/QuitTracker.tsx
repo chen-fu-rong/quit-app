@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react'
-import { differenceInDays, format } from 'date-fns'
+import { format } from 'date-fns'
 import MoneySavedCalculator from './MoneySavedCalculator'
 import { getSupabaseClient } from '../lib/supabase/client'
 
@@ -9,6 +9,12 @@ export default function QuitTracker() {
   const [quitDate, setQuitDate] = useState<string>('')
   const [inputDate, setInputDate] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -47,7 +53,11 @@ export default function QuitTracker() {
     return () => { mounted = false }
   }, [supabase])
 
-  const daysSince = quitDate ? Math.max(0, differenceInDays(new Date(), new Date(quitDate))) : 0
+  const diff = quitDate ? Math.max(0, now.getTime() - new Date(quitDate).getTime()) : 0
+  const daysSince = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hoursSince = Math.floor((diff / (1000 * 60 * 60)) % 24)
+  const minutesSince = Math.floor((diff / 1000 / 60) % 60)
+  const secondsSince = Math.floor((diff / 1000) % 60)
 
   async function applyDate() {
     if (!inputDate) return
@@ -112,13 +122,18 @@ export default function QuitTracker() {
       ) : quitDate ? (
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10">
+            <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10 flex flex-col justify-center">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Quit date</p>
               <p className="mt-3 text-lg font-semibold text-white">{format(new Date(quitDate), 'PPP')}</p>
             </div>
             <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Days without vaping</p>
-              <p className="mt-3 text-lg font-semibold text-white">{daysSince}</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Time without vaping</p>
+              <div className="mt-3 grid grid-cols-4 gap-1 text-center">
+                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{daysSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">days</span></div>
+                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{hoursSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">hrs</span></div>
+                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{minutesSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">mins</span></div>
+                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{secondsSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">secs</span></div>
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

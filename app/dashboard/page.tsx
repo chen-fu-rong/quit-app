@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import QuitTracker from '../../components/QuitTracker'
 import CravingCounter from '../../components/CravingCounter'
+import CravingCrusher from '../../components/CravingCrusher'
 import StatsView from '../../components/StatsView'
 import SignOutButton from '../../components/SignOutButton'
 
@@ -45,11 +46,12 @@ export default function DashboardPage() {
         </header>
 
         <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <div className="grid gap-6">
+          <div className="grid gap-6 content-start">
             <QuitTracker />
             <StatsView />
           </div>
-          <div className="grid gap-6">
+          <div className="grid gap-6 content-start">
+            <CravingCrusher />
             <CravingCounter />
             <section className="rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
               <p className="text-sm uppercase tracking-[0.3em] text-violet-300">Daily motivation</p>
