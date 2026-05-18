@@ -4,12 +4,13 @@ import { format } from 'date-fns'
 import MoneySavedCalculator from './MoneySavedCalculator'
 import { getSupabaseClient } from '../lib/supabase/client'
 
-export default function QuitTracker() {
+export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (date: string) => void }) {
   const supabase = useMemo(() => getSupabaseClient(), [])
   const [quitDate, setQuitDate] = useState<string>('')
   const [inputDate, setInputDate] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [now, setNow] = useState(new Date())
+  const [showRelapseWarning, setShowRelapseWarning] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000)
@@ -48,6 +49,7 @@ export default function QuitTracker() {
 
         setQuitDate(data.start_date)
         setInputDate(localISOTime)
+        if (onQuitDateChange) onQuitDateChange(data.start_date)
       }
 
       setLoading(false)
@@ -92,6 +94,7 @@ export default function QuitTracker() {
       }
       
       setQuitDate(inputDate)
+      if (onQuitDateChange) onQuitDateChange(inputDate)
     } catch (err) {
       console.error('insert quit attempt error', err)
       alert('Failed to save quit date. Please check Vercel environment variables (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY).')
@@ -107,6 +110,8 @@ export default function QuitTracker() {
     await supabase.from('quit_attempts').update({ status: 'relapsed' }).eq('user_id', user.id).eq('status', 'active')
     setQuitDate('')
     setInputDate('')
+    setShowRelapseWarning(false)
+    if (onQuitDateChange) onQuitDateChange('')
   }
 
   return (
@@ -141,7 +146,7 @@ export default function QuitTracker() {
             </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button className="flex-1 rounded-3xl bg-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-400" onClick={clearDate}>
+            <button className="flex-1 rounded-3xl bg-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-400" onClick={() => setShowRelapseWarning(true)}>
               Mark Relapse
             </button>
             <div className="flex-1 rounded-3xl bg-slate-950/80 px-4 py-3 text-sm text-slate-300 ring-1 ring-white/10">
@@ -158,6 +163,28 @@ export default function QuitTracker() {
             <button className="rounded-3xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400" onClick={applyDate}>
               Set Quit Date
             </button>
+          </div>
+        </div>
+      )}
+
+      {showRelapseWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[2rem] bg-slate-900 p-8 shadow-2xl ring-1 ring-white/10 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20 mb-6">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-4">Are you absolutely sure?</h2>
+            <p className="text-slate-300 mb-6">
+              You are about to throw away <strong>{daysSince > 0 ? `${daysSince} days` : `${hoursSince} hours`}</strong> of hard work, reset your health recovery, and lose your streak. The craving will pass, but starting over from zero hurts.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button className="rounded-full bg-violet-500 px-5 py-3 font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-400" onClick={() => setShowRelapseWarning(false)}>
+                I won't give up
+              </button>
+              <button className="rounded-full px-5 py-3 text-sm font-medium text-slate-400 transition hover:bg-white/5 hover:text-white" onClick={clearDate}>
+                Yes, I relapsed
+              </button>
+            </div>
           </div>
         </div>
       )}

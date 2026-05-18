@@ -1,9 +1,12 @@
+"use client"
+import { useState } from 'react'
 import Link from 'next/link'
 import QuitTracker from '../../components/QuitTracker'
 import CravingCounter from '../../components/CravingCounter'
 import CravingCrusher from '../../components/CravingCrusher'
 import StatsView from '../../components/StatsView'
 import SignOutButton from '../../components/SignOutButton'
+import HealthRegeneration from '../../components/HealthRegeneration'
 
 const dailyTips = [
   'Drink a glass of water when a craving hits — hydration helps reset the urge.',
@@ -17,7 +20,8 @@ function randomTip() {
 }
 
 export default function DashboardPage() {
-  const tip = randomTip()
+  const [tip] = useState(() => randomTip())
+  const [quitDate, setQuitDate] = useState<string>('')
 
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-10">
@@ -47,7 +51,8 @@ export default function DashboardPage() {
 
         <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
           <div className="grid gap-6 content-start">
-            <QuitTracker />
+            <QuitTracker onQuitDateChange={setQuitDate} />
+            <HealthRegeneration quitDate={quitDate} />
             <StatsView />
           </div>
           <div className="grid gap-6 content-start">
