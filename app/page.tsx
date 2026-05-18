@@ -35,7 +35,7 @@ export default function Home() {
               </div>
               <div className="rounded-[2rem] bg-slate-950/90 p-5 ring-1 ring-white/10 shadow-xl shadow-black/20">
                 <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Savings</p>
-                <p className="mt-4 text-3xl font-semibold text-white">$84.20</p>
+                <p className="mt-4 text-3xl font-semibold text-white">MMK 42,000</p>
                 <p className="mt-2 text-sm text-slate-400">See how much money you&apos;re keeping.</p>
               </div>
               <div className="rounded-[2rem] bg-slate-950/90 p-5 ring-1 ring-white/10 shadow-xl shadow-black/20 sm:col-span-2">

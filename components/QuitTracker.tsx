@@ -136,7 +136,7 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
               <p className="mt-3 text-lg font-semibold text-white">{format(new Date(quitDate), 'PPp')}</p>
             </div>
             <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10">
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Time without vaping</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Time without smoking / vaping</p>
               <div className="mt-3 grid grid-cols-4 gap-1 text-center">
                 <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{daysSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">days</span></div>
                 <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{hoursSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">hrs</span></div>
