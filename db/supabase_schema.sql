@@ -39,16 +39,33 @@ create table if not exists daily_tips (
 
 -- Row Level Security: only allow users to access their own data
 alter table quit_attempts enable row level security;
-create policy "users_can_manage_quit_attempts" on quit_attempts
-  for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+
+create policy "users_can_select_quit_attempts" on quit_attempts
+  for select using (auth.uid() = user_id);
+
+create policy "users_can_insert_quit_attempts" on quit_attempts
+  for insert with check (auth.uid() = user_id);
+
+create policy "users_can_update_quit_attempts" on quit_attempts
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "users_can_delete_quit_attempts" on quit_attempts
+  for delete using (auth.uid() = user_id);
+
 
 alter table cravings enable row level security;
-create policy "users_can_manage_cravings" on cravings
-  for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+
+create policy "users_can_select_cravings" on cravings
+  for select using (auth.uid() = user_id);
+
+create policy "users_can_insert_cravings" on cravings
+  for insert with check (auth.uid() = user_id);
+
+create policy "users_can_update_cravings" on cravings
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "users_can_delete_cravings" on cravings
+  for delete using (auth.uid() = user_id);
 
 -- daily_tips: allow authenticated users to read; admin can insert
 alter table daily_tips enable row level security;
