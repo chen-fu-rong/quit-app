@@ -41,9 +41,13 @@ export default function QuitTracker() {
       }
 
       if (data && mounted) {
-        const dateStr = data.start_date
-        setQuitDate(dateStr)
-        setInputDate(dateStr)
+        // Convert timestamp to YYYY-MM-DDTHH:mm for the input field
+        const dateObj = new Date(data.start_date)
+        const tzOffset = dateObj.getTimezoneOffset() * 60000
+        const localISOTime = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 16)
+
+        setQuitDate(data.start_date)
+        setInputDate(localISOTime)
       }
 
       setLoading(false)
@@ -124,7 +128,7 @@ export default function QuitTracker() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10 flex flex-col justify-center">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Quit date</p>
-              <p className="mt-3 text-lg font-semibold text-white">{format(new Date(quitDate), 'PPP')}</p>
+              <p className="mt-3 text-lg font-semibold text-white">{format(new Date(quitDate), 'PPp')}</p>
             </div>
             <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Time without vaping</p>
@@ -150,7 +154,7 @@ export default function QuitTracker() {
         <div className="space-y-6">
           <p className="text-slate-300">No quit date set yet. Choose your start date below to begin tracking progress and savings.</p>
           <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-            <input type="date" value={inputDate} onChange={(e)=>setInputDate(e.target.value)} className="rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none transition focus:border-violet-400" />
+            <input type="datetime-local" value={inputDate} onChange={(e)=>setInputDate(e.target.value)} className="rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none transition focus:border-violet-400" />
             <button className="rounded-3xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400" onClick={applyDate}>
               Set Quit Date
             </button>
