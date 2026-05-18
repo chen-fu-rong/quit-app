@@ -75,7 +75,7 @@ create policy "public_select_daily_tips" on daily_tips
 
 create policy "authenticated_insert_daily_tips" on daily_tips
   for insert
-  using (auth.role() = 'authenticated');
+  with check (auth.role() = 'authenticated');
 
 -- Optional views: user stats (days since start, total cravings)
 create or replace view user_quit_stats as
