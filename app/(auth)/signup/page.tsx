@@ -1,11 +1,28 @@
 "use client"
 export const dynamic = 'force-dynamic'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { getSupabaseClient } from '../../../lib/supabase/client'
 
 export default function SignupPage() {
   const supabase = getSupabaseClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.push('/dashboard')
+    })
+
+    // Listen for login events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) router.push('/dashboard')
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase, router])
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
