@@ -53,29 +53,37 @@ export default function QuitTracker() {
     if (!inputDate) return
     setLoading(true)
 
-    const { data: { session }, error: sessionErr } = await supabase.auth.getSession()
-    const token = session?.access_token
-    if (sessionErr || !token) {
-      alert('Please sign in to save your quit date')
-      setLoading(false)
-      return
-    }
+    try {
+      const { data: { session }, error: sessionErr } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (sessionErr || !token) {
+        alert('Please sign in to save your quit date')
+        setLoading(false)
+        return
+      }
 
-    const res = await fetch('/api/quit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ start_date: inputDate }),
-    })
-    const json = await res.json()
+      const res = await fetch('/api/quit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ start_date: inputDate }),
+      })
 
-    if (!res.ok) {
-      console.error('insert quit attempt error', json)
-      alert('Failed to save quit date')
-    } else {
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`)
+      }
+      
+      const json = await res.json()
+      if (json.error) {
+        throw new Error(json.error)
+      }
+      
       setQuitDate(inputDate)
+    } catch (err) {
+      console.error('insert quit attempt error', err)
+      alert('Failed to save quit date. Please check Vercel environment variables (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY).')
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   async function clearDate() {

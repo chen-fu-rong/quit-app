@@ -29,25 +29,30 @@ export default function CravingCounter(){
   }, [supabase])
 
   async function record(){
-    const { data: { session } } = await supabase.auth.getSession()
-    const token = session?.access_token
-    if (!token) { alert('Please sign in to record cravings'); return }
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (!token) { alert('Please sign in to record cravings'); return }
 
-    const { data: attempt } = await supabase.from('quit_attempts').select('id').eq('status','active').limit(1).maybeSingle()
-    const attempt_id = attempt ? attempt.id : null
+      const { data: attempt } = await supabase.from('quit_attempts').select('id').eq('status','active').limit(1).maybeSingle()
+      const attempt_id = attempt ? attempt.id : null
 
-    const res = await fetch('/api/cravings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ intensity, attempt_id })
-    })
+      const res = await fetch('/api/cravings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ intensity, attempt_id })
+      })
 
-    const json = await res.json()
-    if (!res.ok) {
-      console.error('insert craving', json)
-      alert('Failed to save craving')
-    } else {
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`)
+      }
+      const json = await res.json()
+      if (json.error) throw new Error(json.error)
+      
       setCravings(prev => [json.data as Craving, ...prev])
+    } catch (err) {
+      console.error('insert craving error', err)
+      alert('Failed to save craving. Please check Vercel environment variables.')
     }
   }
 
