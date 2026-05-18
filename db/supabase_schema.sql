@@ -8,8 +8,8 @@ create extension if not exists "pgcrypto";
 create table if not exists quit_attempts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  start_date date not null,
-  end_date date,
+  start_date timestamptz not null,
+  end_date timestamptz,
   status text not null default 'active', -- active | relapsed | completed
   attempt_number int default 1,
   notes text,
@@ -87,7 +87,7 @@ select
   qa.status,
   qa.attempt_number,
   qa.created_at,
-  (current_date - qa.start_date) as days_since_start,
+  (current_date - qa.start_date::date) as days_since_start,
   coalesce((select count(*) from cravings c where c.attempt_id = qa.id), 0) as total_cravings
 from quit_attempts qa;
 
