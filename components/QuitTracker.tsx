@@ -12,6 +12,16 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
   const [now, setNow] = useState(new Date())
   const [showRelapseWarning, setShowRelapseWarning] = useState(false)
 
+  function formatAsLocalInput(value: string) {
+    const date = new Date(value)
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    return local.toISOString().slice(0, 16)
+  }
+
+  function normalizeLocalInputToUtc(value: string) {
+    return new Date(value).toISOString()
+  }
+
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(interval)
@@ -42,13 +52,8 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
       }
 
       if (data && mounted) {
-        // Convert timestamp to YYYY-MM-DDTHH:mm for the input field
-        const dateObj = new Date(data.start_date)
-        const tzOffset = dateObj.getTimezoneOffset() * 60000
-        const localISOTime = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 16)
-
         setQuitDate(data.start_date)
-        setInputDate(localISOTime)
+        setInputDate(formatAsLocalInput(data.start_date))
         if (onQuitDateChange) onQuitDateChange(data.start_date)
       }
 
@@ -78,10 +83,11 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
         return
       }
 
+      const utcStartDate = normalizeLocalInputToUtc(inputDate)
       const res = await fetch('/api/quit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ start_date: inputDate }),
+        body: JSON.stringify({ start_date: utcStartDate }),
       })
 
       if (!res.ok) {
@@ -93,8 +99,10 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
         throw new Error(json.error)
       }
       
-      setQuitDate(inputDate)
-      if (onQuitDateChange) onQuitDateChange(inputDate)
+      const savedStartDate = json.data?.start_date || utcStartDate
+      setQuitDate(savedStartDate)
+      setInputDate(formatAsLocalInput(savedStartDate))
+      if (onQuitDateChange) onQuitDateChange(savedStartDate)
     } catch (err) {
       console.error('insert quit attempt error', err)
       alert('Failed to save quit date. Please check Vercel environment variables (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY).')
@@ -137,11 +145,11 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
             </div>
             <div className="rounded-3xl bg-slate-950/80 p-4 text-slate-300 ring-1 ring-white/10">
               <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Time without smoking / vaping</p>
-              <div className="mt-3 grid grid-cols-4 gap-1 text-center">
-                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{daysSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">days</span></div>
-                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{hoursSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">hrs</span></div>
-                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{minutesSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">mins</span></div>
-                <div className="flex flex-col"><span className="text-xl sm:text-2xl font-semibold text-white">{secondsSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">secs</span></div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
+                <div className="flex flex-col items-center justify-center"><span className="text-xl sm:text-2xl font-semibold text-white">{daysSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">days</span></div>
+                <div className="flex flex-col items-center justify-center"><span className="text-xl sm:text-2xl font-semibold text-white">{hoursSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">hrs</span></div>
+                <div className="flex flex-col items-center justify-center"><span className="text-xl sm:text-2xl font-semibold text-white">{minutesSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">mins</span></div>
+                <div className="flex flex-col items-center justify-center"><span className="text-xl sm:text-2xl font-semibold text-white">{secondsSince}</span><span className="text-[10px] sm:text-xs uppercase text-slate-500">secs</span></div>
               </div>
             </div>
           </div>
@@ -159,8 +167,8 @@ export default function QuitTracker({ onQuitDateChange }: { onQuitDateChange?: (
         <div className="space-y-6">
           <p className="text-slate-300">No quit date set yet. Choose your start date below to begin tracking progress and savings.</p>
           <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-            <input type="datetime-local" value={inputDate} onChange={(e)=>setInputDate(e.target.value)} className="rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none transition focus:border-violet-400" />
-            <button className="rounded-3xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400" onClick={applyDate}>
+            <input type="datetime-local" value={inputDate} onChange={(e)=>setInputDate(e.target.value)} className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none transition focus:border-violet-400" />
+            <button className="w-full rounded-3xl bg-violet-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-400 sm:w-auto" onClick={applyDate}>
               Set Quit Date
             </button>
           </div>

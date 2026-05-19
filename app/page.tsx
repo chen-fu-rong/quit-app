@@ -18,11 +18,11 @@ export default function Home() {
                   Keep your quit date, cravings, and savings all in one beautiful dashboard built for modern phones and responsive screens.
                 </p>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <Link href="/dashboard" className="inline-flex items-center justify-center rounded-full bg-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-400">
+              <div className="grid gap-3 sm:flex sm:flex-row sm:items-center">
+                <Link href="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-violet-400">
                   Open Dashboard
                 </Link>
-                <Link href="/login" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-violet-400 hover:text-white">
+                <Link href="/login" className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:border-violet-400 hover:text-white">
                   Login / Signup
                 </Link>
               </div>
