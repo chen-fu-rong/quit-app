@@ -42,6 +42,15 @@ const HEALTH_MILESTONES = [
   },
 ]
 
+function formatDurationMs(durationMs: number) {
+  const hours = durationMs / (60 * 60 * 1000)
+  if (hours < 1) {
+    const minutes = Math.round(durationMs / (60 * 1000))
+    return `${minutes} min`
+  }
+  return hours % 1 === 0 ? `${hours} hr` : `${hours.toFixed(1)} hr`
+}
+
 export default function HealthRegeneration({ quitDate }: Props) {
   const [now, setNow] = useState(new Date())
   const [showAll, setShowAll] = useState(false)
@@ -99,6 +108,7 @@ export default function HealthRegeneration({ quitDate }: Props) {
           return (
             <div key={m.label} className="space-y-2">
               <div className="flex items-center justify-between gap-4 text-sm">
+                <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <div
                     className={`flex h-3 w-3 rounded-full ${isComplete ? 'bg-green-400' : isActive ? 'bg-cyan-400' : 'bg-slate-700'}`}
@@ -107,10 +117,12 @@ export default function HealthRegeneration({ quitDate }: Props) {
                     {m.label}
                   </span>
                 </div>
-                <span className={isComplete ? 'text-green-400 font-bold' : 'text-slate-400 font-semibold'}>
-                  {Math.floor(progress)}%
-                </span>
+                <p className="text-xs text-slate-500">Target: {formatDurationMs(m.durationMs)}</p>
               </div>
+              <span className={isComplete ? 'text-green-400 font-bold' : 'text-slate-400 font-semibold'}>
+                {Math.floor(progress)}%
+              </span>
+            </div>
               <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-800 ring-1 ring-white/10">
                 <div
                   className={
@@ -120,7 +132,11 @@ export default function HealthRegeneration({ quitDate }: Props) {
                       : 'bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500 shadow-[0_0_20px_rgba(168,85,247,0.25)]')
                   }
                   style={{ width: `${progress}%`, willChange: 'width' }}
-                />
+                >
+                  {!isComplete && (
+                    <div className="absolute inset-0 rounded-full bg-[linear-gradient(120deg,rgba(255,255,255,0.25) 0%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.25) 100%)] opacity-40 progress-shimmer" />
+                  )}
+                </div>
               </div>
             </div>
           )

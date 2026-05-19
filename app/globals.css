@@ -30,3 +30,17 @@ body {
   background: rgba(124, 58, 237, 0.8);
   color: white;
 }
+
+.progress-shimmer {
+  background-size: 200% 100%;
+  animation: progress-slide 2.5s linear infinite;
+}
+
+@keyframes progress-slide {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
