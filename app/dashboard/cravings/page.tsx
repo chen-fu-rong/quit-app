@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import CravingCrusher from '../../../components/CravingCrusher'
 import CravingCounter from '../../../components/CravingCounter'
+import CravingJournal from '../../../components/CravingJournal'
 
 export default function DashboardCravingsPage() {
   return (
@@ -32,6 +33,7 @@ export default function DashboardCravingsPage() {
         <div className="grid gap-6">
           <CravingCrusher />
           <CravingCounter />
+          <CravingJournal />
         </div>
       </div>
     </main>

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import QuitTracker from '../../../components/QuitTracker'
 import HealthRegeneration from '../../../components/HealthRegeneration'
 import StatsView from '../../../components/StatsView'
+import StreakRewards from '../../../components/StreakRewards'
+import JourneyTimeline from '../../../components/JourneyTimeline'
 
 export default function DashboardProgressPage() {
   const [quitDate, setQuitDate] = useState<string>('')
@@ -34,8 +36,10 @@ export default function DashboardProgressPage() {
         </header>
 
         <div className="grid gap-6">
+          <StreakRewards />
           <QuitTracker onQuitDateChange={setQuitDate} />
           <HealthRegeneration quitDate={quitDate} />
+          <JourneyTimeline />
           <StatsView />
         </div>
       </div>

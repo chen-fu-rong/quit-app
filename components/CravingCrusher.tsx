@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Effect = {
   id: number
@@ -13,15 +13,35 @@ export default function CravingCrusher() {
   const [crushed, setCrushed] = useState(false)
   const [shake, setShake] = useState(false)
   const [effects, setEffects] = useState<Effect[]>([])
-  const [nextEffectId, setNextEffectId] = useState(1)
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setEffects((current) => current.slice(-12))
+    }, 1000)
+    return () => window.clearTimeout(timeout)
+  }, [effects])
+
+  function playHitSound() {
+    if (typeof window === 'undefined' || !window.AudioContext) return
+    const audioContext = new window.AudioContext()
+    const oscillator = audioContext.createOscillator()
+    const gain = audioContext.createGain()
+    oscillator.type = 'triangle'
+    oscillator.frequency.value = 440
+    gain.gain.value = 0.12
+    oscillator.connect(gain)
+    gain.connect(audioContext.destination)
+    oscillator.start()
+    oscillator.stop(audioContext.currentTime + 0.08)
+    oscillator.onended = () => audioContext.close()
+  }
 
   function createEffect() {
-    const id = nextEffectId
-    setNextEffectId(id + 1)
+    const id = Date.now()
     const effect: Effect = {
       id,
       x: Math.random() * 120 - 60,
-      y: Math.random() * -80 - 20,
+      y: Math.random() * -80 - 30,
       emoji: ['✨', '💥', '⚡', '🔥'][Math.floor(Math.random() * 4)],
     }
     setEffects((current) => [...current, effect])
@@ -36,11 +56,14 @@ export default function CravingCrusher() {
     setHealth(newHealth)
     setShake(true)
     createEffect()
+    playHitSound()
+    if (navigator.vibrate) navigator.vibrate([12, 18, 12])
+
     window.setTimeout(() => setShake(false), 120)
 
     if (newHealth === 0) {
       setCrushed(true)
-      setTimeout(() => {
+      window.setTimeout(() => {
         setHealth(100)
         setCrushed(false)
       }, 4000)
@@ -70,7 +93,7 @@ export default function CravingCrusher() {
 
           <button
             onClick={hit}
-            className={`relative flex h-32 w-32 cursor-pointer select-none items-center justify-center overflow-hidden rounded-full border border-violet-400/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 text-[5rem] text-white shadow-[0_0_40px_rgba(124,58,237,0.2)] transition-transform duration-150 ease-out ${
+            className={`relative flex h-32 w-32 cursor-pointer select-none items-center justify-center overflow-hidden rounded-full border border-violet-400/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 text-[5rem] text-white shadow-[0_0_40px_rgba(124,58,237,0.25)] transition-transform duration-150 ease-out ${
               shake ? '-rotate-12 scale-95' : ''
             } ${crushed ? 'scale-150 opacity-0 duration-500 ease-out' : 'active:scale-80'} ${
               crushed ? 'shadow-[0_0_80px_rgba(248,113,113,0.35)]' : 'shadow-[0_0_30px_rgba(99,102,241,0.35)]'
@@ -80,8 +103,8 @@ export default function CravingCrusher() {
             {crushed ? '💥' : '👾'}
           </button>
 
-          <div className={`pointer-events-none absolute inset-0 rounded-full ${crushed ? 'animate-ping bg-pink-500/20' : 'opacity-0'} `} />
-          <div className={`pointer-events-none absolute inset-0 rounded-full border border-violet-500/20 ${shake || crushed ? 'opacity-100 animate-pulse' : 'opacity-0'} `} />
+          <div className={`pointer-events-none absolute inset-0 rounded-full ${crushed ? 'animate-ping bg-pink-500/20' : 'opacity-0'}`} />
+          <div className={`pointer-events-none absolute inset-0 rounded-full border border-violet-500/20 ${shake || crushed ? 'opacity-100 animate-pulse' : 'opacity-0'}`} />
         </div>
       </div>
 
